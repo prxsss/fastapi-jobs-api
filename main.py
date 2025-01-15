@@ -37,3 +37,12 @@ async def create_job(job: JobCreate, session: SessionDep):
     await session.refresh(db_job)
 
     return db_job
+
+@app.delete("/api/jobs/{job_id}")
+async def delete_job(job_id: int, session: SessionDep):
+    job = await session.get(Job, job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    await session.delete(job)
+    await session.commit()
+    return { "ok": True }
