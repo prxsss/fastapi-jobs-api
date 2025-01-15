@@ -13,3 +13,8 @@ class JobPublic(JobBase):
 
 class JobCreate(JobBase):
     pass
+
+class JobUpdate(SQLModel):
+    title: str | None = None
+    description: str | None = None
+    salary: float | None = None

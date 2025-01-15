@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from sqlmodel import select
 
 from .db import init_db, SessionDep
-from .models import Job, JobPublic, JobCreate
+from .models import Job, JobPublic, JobCreate, JobUpdate
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -37,6 +37,18 @@ async def create_job(job: JobCreate, session: SessionDep):
     await session.refresh(db_job)
 
     return db_job
+
+@app.patch("/api/jobs/{job_id}", response_model=JobPublic)
+async def update_job(job_id: int, job: JobUpdate, session: SessionDep):
+    job_db = await session.get(Job, job_id)
+    if not job_db:
+        raise HTTPException(status_code=404, detail="Job not found")
+    job_data = job.model_dump(exclude_unset=True)
+    job_db.sqlmodel_update(job_data)
+    session.add(job_db)
+    await session.commit()
+    await session.refresh(job_db)
+    return job_db
 
 @app.delete("/api/jobs/{job_id}")
 async def delete_job(job_id: int, session: SessionDep):
