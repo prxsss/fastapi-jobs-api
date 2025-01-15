@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from contextlib import asynccontextmanager
 from sqlmodel import select
 
@@ -19,6 +19,14 @@ app = FastAPI(lifespan=lifespan)
 async def read_jobs(session: SessionDep):
     jobs = await session.exec(select(Job))
     return jobs
+
+@app.get("/api/jobs/{job_id}", response_model=JobPublic)
+async def read_job(job_id: int, session: SessionDep):
+    job = await session.get(Job, job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return job
+
 
 @app.post("/api/jobs", response_model=JobPublic)
 async def create_job(job: JobCreate, session: SessionDep):
