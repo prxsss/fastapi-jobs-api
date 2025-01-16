@@ -145,6 +145,7 @@ You can test the following endpoints:
     {
       "title": "Updated DevOps Engineer",
       "description": "Updated description of DevOps Engineer.",
+      "salary": 80000,
       "id": 3
     }
     ```
